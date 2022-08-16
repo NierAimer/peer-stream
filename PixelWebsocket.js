@@ -181,16 +181,20 @@ function StartUp(player,engine,token,limit,projectAddress,RenderOffScreen,Unatte
         }
     });
     const StartUpUE = querystring.stringify({
-        Unattended:'',
-        RenderOffScreen:'',
-        AudioMixer:'',
-        graphicsadapter:graphicsadapter,
-        ProjectID:"",
-    }, ' ', '=');
+        projectAddress,
+        Unattended,
+        RenderOffScreen,
+        AudioMixer,
+        graphicsadapter,
+        ForceRes,
+        ResX,
+        ResY,
+        ProjectID:"UE5",
+    }, ' -', '');
     console.log(`StartUpUE: ${ StartUpUE}`);
     //启动ue进程
     const exec = require("child_process").exec;
-    exec("start D:/ue4OutputPackage/Windows/MenZiQu.exe -Unattended -RenderOffScreen -PixelStreamingURL=ws://127.0.0.1:8888 -graphicsadapter=0 -ProjectID=UE5", (error, stdout, stderr) => {})
+    //exec("start D:/ue4OutputPackage/Windows/MenZiQu.exe -Unattended -RenderOffScreen -PixelStreamingURL=ws://127.0.0.1:8888 -graphicsadapter=0 -ProjectID=UE5", (error, stdout, stderr) => {})
 
 
     setInterval(function(){
