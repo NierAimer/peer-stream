@@ -116,6 +116,7 @@ function StartUp(player,engine,token,limit,projectAddress,RenderOffScreen,Unatte
     const limit_commander = querystring.stringify({
         limit: limit,
     }, ' ', '=');
+    /*
     const projectAddress_commander = querystring.stringify({
         projectAddress: projectAddress,
     }, ' ', '=');
@@ -140,7 +141,8 @@ function StartUp(player,engine,token,limit,projectAddress,RenderOffScreen,Unatte
     const PixelStreamingEncoderRateControl_commander = querystring.stringify({
         PixelStreamingEncoderRateControl: PixelStreamingEncoderRateControl,
     }, ' ', '=');
-
+     */
+    //启动信令的子进程
     const {spawn} = child_process;
     const child = spawn('node', ['signal-pro.js',player_commander,engine_commander,token_commander,limit_commander],
         { stdio: [null, null, null, 'ipc'] });
@@ -178,9 +180,21 @@ function StartUp(player,engine,token,limit,projectAddress,RenderOffScreen,Unatte
 
         }
     });
+    const StartUpUE = querystring.stringify({
+        Unattended:'',
+        RenderOffScreen:'',
+        AudioMixer:'',
+        graphicsadapter:graphicsadapter,
+        ProjectID:"",
+    }, ' ', '=');
+    console.log(`StartUpUE: ${ StartUpUE}`);
+    //启动ue进程
+    const exec = require("child_process").exec;
+    exec("start D:/ue4OutputPackage/Windows/MenZiQu.exe -Unattended -RenderOffScreen -PixelStreamingURL=ws://127.0.0.1:8888 -graphicsadapter=0 -ProjectID=UE5", (error, stdout, stderr) => {})
+
 
     setInterval(function(){
-        console.log(`child pid: ${ pixel_child_pid}`);
+        console.log(`signal child pid: ${ pixel_child_pid}`);
     }, 5000);
 
 }
