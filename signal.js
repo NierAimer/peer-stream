@@ -72,6 +72,7 @@ ENGINE.on("connection", (ws, req) => {
     for (const client of PLAYER.clients) {
       client.send(`❌ Engine stopped`);
     }
+    process.exit();
   });
 
   ws.on("error", (error) => {
@@ -159,6 +160,7 @@ PLAYER.on("connection", async (ws, req) => {
     console.log("❌ player", playerId, "closed:", String(reason));
     if (ENGINE.ws.readyState === WebSocket.OPEN)
       ENGINE.ws.send(JSON.stringify({ type: "playerDisconnected", playerId }));
+    process.exit();
   });
 
   ws.on("error", (error) => {

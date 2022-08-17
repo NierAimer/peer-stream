@@ -49,7 +49,7 @@ function webSocketInit(service){
 
     // 心跳 * 回应
     setInterval(function(){
-        ws.send('');
+        //ws.send('');
     }, 1000*100);
 }
 
@@ -62,48 +62,43 @@ function ParseStartCommander(json,ws)
     const json_token = json.token;
     const json_limit = json.limit;
     const json_projectAddress = json.projectAddress;
-    const json_RenderOffScreen = json.RenderOffScreen;
-    const json_Unattended = json.Unattended;
     const json_graphicsadapter= json.graphicsadapter;
     const json_ForceRes = json.ForceRes;
     const json_ResX = json.ResX;
     const json_ResY = json.ResY;
     const json_AudioMixer = json.AudioMixer;
     const json_PixelStreamingEncoderRateControl = json.PixelStreamingEncoderRateControl;
-    //console.log(json_player);
-    //console.log(json_engine);
-    //console.log(json_token);
-    //console.log(json_limit);
-    //console.log(json_projectAddress);
-    //console.log(json_RenderOffScreen);
-    //console.log(json_Unattended);
-    //console.log(json_graphicsadapter);
-    //console.log(json_ForceRes);
-    //console.log(json_ResX);
-    //console.log(json_ResY);
-    //console.log(json_AudioMixer);
-    //console.log(json_PixelStreamingEncoderRateControl);
+    const json_ProjectID = json.ProjectID;
     StartUp(
         json_player,
         json_engine,
         json_token,
         json_limit,
         json_projectAddress,
-        json_RenderOffScreen,
-        json_Unattended,
         json_graphicsadapter,
         json_ForceRes,
         json_ResX,
         json_ResY,
         json_AudioMixer,
         json_PixelStreamingEncoderRateControl,
+        json_ProjectID,
         ws
     )
 }
 
 
-function StartUp(player,engine,token,limit,projectAddress,RenderOffScreen,Unattended,graphicsadapter,ForceRes,ResX,ResY,AudioMixer,PixelStreamingEncoderRateControl,ws)
+function StartUp(player,engine,token,limit,projectAddress,graphicsadapter,ForceRes,ResX,ResY,AudioMixer,PixelStreamingEncoderRateControl,ProjectID,ws)
 {
+
+    if (player==undefined&&engine==undefined)
+    {
+        console.log('一般模式api启动');
+        const port =require('./GetFreePort');
+        player = port.port();
+        console.log(`player_commander: ${player}`);
+        engine = port.port();
+        console.log(`engine_commander: ${engine}`);
+    }
     const player_commander = querystring.stringify({
         player: player,
     }, ' ', '=');
@@ -116,32 +111,6 @@ function StartUp(player,engine,token,limit,projectAddress,RenderOffScreen,Unatte
     const limit_commander = querystring.stringify({
         limit: limit,
     }, ' ', '=');
-    /*
-    const projectAddress_commander = querystring.stringify({
-        projectAddress: projectAddress,
-    }, ' ', '=');
-    const RenderOffScreen_commander = querystring.stringify({
-        RenderOffScreen: RenderOffScreen,
-    }, ' ', '=');
-    const graphicsadapter_commander = querystring.stringify({
-        graphicsadapter: graphicsadapter,
-    }, ' ', '=');
-    const ForceRes_commander = querystring.stringify({
-        ForceRes: ForceRes,
-    }, ' ', '=');
-    const ResX_commander = querystring.stringify({
-        ResX: ResX,
-    }, ' ', '=');
-    const ResY_commander = querystring.stringify({
-        ResY: ResY,
-    }, ' ', '=');
-    const AudioMixer_commander = querystring.stringify({
-        AudioMixer: AudioMixer,
-    }, ' ', '=');
-    const PixelStreamingEncoderRateControl_commander = querystring.stringify({
-        PixelStreamingEncoderRateControl: PixelStreamingEncoderRateControl,
-    }, ' ', '=');
-     */
     //启动信令的子进程
     const {spawn} = child_process;
     const child = spawn('node', ['signal-pro.js',player_commander,engine_commander,token_commander,limit_commander],
@@ -180,21 +149,23 @@ function StartUp(player,engine,token,limit,projectAddress,RenderOffScreen,Unatte
 
         }
     });
-    const StartUpUE = querystring.stringify({
-        projectAddress,
-        Unattended,
-        RenderOffScreen,
-        AudioMixer,
-        graphicsadapter,
-        ForceRes,
+    const UEStratUpPort = ' -PixelStreamingURL=ws://127.0.0.1:'+ engine;
+    const StartUpUEFirstPart = projectAddress +UEStratUpPort+' -Unattended -RenderOffScreen -ForceRes -'
+    const StartUpUELastPart = querystring.stringify({
         ResX,
         ResY,
-        ProjectID:"UE5",
+        AudioMixer,
+        graphicsadapter,
+        PixelStreamingEncoderRateControl,
+        ProjectID,
     }, ' -', '');
-    console.log(`StartUpUE: ${ StartUpUE}`);
+    //console.log(`StartUpUEFirstPart: ${ StartUpUEFirstPart}`);
+    //console.log(`StartUpUELastPart: ${ StartUpUELastPart}`);
+    const StartUp = StartUpUEFirstPart+StartUpUELastPart;
+    console.log(`StartUp: ${ StartUp}`);
     //启动ue进程
     const exec = require("child_process").exec;
-    //exec("start D:/ue4OutputPackage/Windows/MenZiQu.exe -Unattended -RenderOffScreen -PixelStreamingURL=ws://127.0.0.1:8888 -graphicsadapter=0 -ProjectID=UE5", (error, stdout, stderr) => {})
+    exec("start "+StartUp, (error, stdout, stderr) => {})
 
 
     setInterval(function(){
