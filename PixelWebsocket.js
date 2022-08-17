@@ -89,15 +89,14 @@ function ParseStartCommander(json,ws)
 
 function StartUp(player,engine,token,limit,projectAddress,graphicsadapter,ForceRes,ResX,ResY,AudioMixer,PixelStreamingEncoderRateControl,ProjectID,ws)
 {
-
     if (player==undefined&&engine==undefined)
     {
         console.log('一般模式api启动');
         const port =require('./GetFreePort');
         player = port.port();
-        console.log(`player_commander: ${player}`);
+        //console.log(`player_commander: ${player}`);
         engine = port.port();
-        console.log(`engine_commander: ${engine}`);
+        //console.log(`engine_commander: ${engine}`);
     }
     const player_commander = querystring.stringify({
         player: player,
@@ -112,13 +111,29 @@ function StartUp(player,engine,token,limit,projectAddress,graphicsadapter,ForceR
         limit: limit,
     }, ' ', '=');
     //启动信令的子进程
+    const exec = require("child_process").exec;
+    /*
+    let signal_start_up = 'signal-pro.js '+'--name '+ProjectID +' --'+' '+player_commander+' '+engine_commander+' '+token_commander+' '+limit_commander;
+    //console.log('signal_start_up: ' + signal_start_up);
+
+    const child = exec('pm2 start '+signal_start_up,
+        function (error, stdout, stderr) {
+            process.stdin.pipe(child.stdin);
+            console.log('stdout: ' + stdout);
+            console.log('stderr: ' + stderr);
+            if (error !== null) {
+                console.log('exec error: ' + error);
+            }
+        });
+     */
+
     const {spawn} = child_process;
     const child = spawn('node', ['signal-pro.js',player_commander,engine_commander,token_commander,limit_commander],
         { stdio: [null, null, null, 'ipc'] });
     process.stdin.pipe(child.stdin);
 
     child.stdout.on('data', (data) => {
-        console.log(`child stdout: ${data}`);
+        console.log('child pid:'+ child.pid+ ' child stdout:'+ data);
         let bfound = false;
         for (let i = 0; i < pixel_child_pid.length; i++) {
             if (pixel_child_pid[i] == child.pid) {
@@ -131,7 +146,7 @@ function StartUp(player,engine,token,limit,projectAddress,graphicsadapter,ForceR
     });
 
     child.stderr.on('data',(data) => {
-        console.log(`child error: ${data}`);
+        console.log(`child error: ${child.pid,data}`);
         //ws.send('信令服务创建失败，原因端口占用');
     });
 
@@ -149,6 +164,7 @@ function StartUp(player,engine,token,limit,projectAddress,graphicsadapter,ForceR
 
         }
     });
+
     const UEStratUpPort = ' -PixelStreamingURL=ws://127.0.0.1:'+ engine;
     const StartUpUEFirstPart = projectAddress +UEStratUpPort+' -Unattended -RenderOffScreen -ForceRes -'
     const StartUpUELastPart = querystring.stringify({
@@ -164,12 +180,11 @@ function StartUp(player,engine,token,limit,projectAddress,graphicsadapter,ForceR
     const StartUp = StartUpUEFirstPart+StartUpUELastPart;
     console.log(`StartUp: ${ StartUp}`);
     //启动ue进程
-    const exec = require("child_process").exec;
     exec("start "+StartUp, (error, stdout, stderr) => {})
 
 
     setInterval(function(){
-        console.log(`signal child pid: ${ pixel_child_pid}`);
+        console.log('当前子存活子进程projectID:'+ProjectID+' 当前子存活子进程pid:' + pixel_child_pid);
     }, 5000);
 
 }

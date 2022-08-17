@@ -22,7 +22,7 @@ function getIPAddress() {
 const randomNum = (min, max) =>
     Math.floor(Math.random() * (max - min + 1)) + min
 
-const getFreePort = (minPort = 1000, maxPorts = 8888) => {
+const getFreePort = (minPort = 1000, maxPorts = 8000) => {
     const port = randomNum(minPort, maxPorts)
     if (port.length === 0) {
         console.info('分配端口已达最大限额')

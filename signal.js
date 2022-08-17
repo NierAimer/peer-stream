@@ -160,7 +160,6 @@ PLAYER.on("connection", async (ws, req) => {
     console.log("❌ player", playerId, "closed:", String(reason));
     if (ENGINE.ws.readyState === WebSocket.OPEN)
       ENGINE.ws.send(JSON.stringify({ type: "playerDisconnected", playerId }));
-    process.exit();
   });
 
   ws.on("error", (error) => {
