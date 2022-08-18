@@ -13,9 +13,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="15b93484-0236-4280-864d-0f1ad405326a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/GetIP.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GetFreePort.js" beforeDir="false" afterPath="$PROJECT_DIR$/GetFreePort.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/PixelWebsocket.js" beforeDir="false" afterPath="$PROJECT_DIR$/PixelWebsocket.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/signal.js" beforeDir="false" afterPath="$PROJECT_DIR$/signal.js" afterDir="false" />
@@ -87,6 +85,7 @@
       <workItem from="1660699768268" duration="11195000" />
       <workItem from="1660718994718" duration="467000" />
       <workItem from="1660719929165" duration="6215000" />
+      <workItem from="1660785837129" duration="2761000" />
     </task>
     <servers />
   </component>

@@ -72,7 +72,7 @@ ENGINE.on("connection", (ws, req) => {
     for (const client of PLAYER.clients) {
       client.send(`❌ Engine stopped`);
     }
-    process.exit();
+    //process.exit();
   });
 
   ws.on("error", (error) => {

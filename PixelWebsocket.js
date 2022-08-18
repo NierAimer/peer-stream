@@ -128,7 +128,7 @@ function StartUp(player,engine,token,limit,projectAddress,graphicsadapter,ForceR
      */
 
     const {spawn} = child_process;
-    const child = spawn('node', ['signal-pro.js',player_commander,engine_commander,token_commander,limit_commander],
+    const child = spawn('node', ['signal.js',player_commander,engine_commander,token_commander,limit_commander],
         { stdio: [null, null, null, 'ipc'] });
     process.stdin.pipe(child.stdin);
 
