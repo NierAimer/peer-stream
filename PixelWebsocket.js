@@ -6,8 +6,16 @@ require('fs');
 let limitConnect = 10;  // 断线重连次数
 let timeConnect = 5;
 webSocketInit("ws://localhost:8765");
-const pixel_child_pid = new Array();
-let connect_state = false;
+
+
+const signal_struct = {
+    ProjectID:  {type: String},
+    pid:  {type: Number},
+    state: {type: String}
+};
+
+const pixel_child_pid = new Array(signal_struct);
+pixel_child_pid.length = 0;
 
 
 //socket初始化
@@ -15,7 +23,6 @@ function webSocketInit(service){
     const ws = new WebSocket(service);
     ws.onopen = function () {
         console.log("已连接中心机服务器");
-        connect_state = true;
         ws.send("connect to center")
     };
     ws.on("message", function(data) {
@@ -25,7 +32,6 @@ function webSocketInit(service){
         ParseStartCommander(data,ws);
     });
     ws.onclose = function () {
-        connect_state = false;
         console.log('服务器已经断开');
         reconnect(service);
     };
@@ -49,7 +55,7 @@ function webSocketInit(service){
 
     // 心跳 * 回应
     setInterval(function(){
-        //ws.send('');
+        ws.send('');
     }, 1000*100);
 }
 
@@ -128,26 +134,34 @@ function StartUp(player,engine,token,limit,projectAddress,graphicsadapter,ForceR
      */
 
     const {spawn} = child_process;
-    const child = spawn('node', ['signal.js',player_commander,engine_commander,token_commander,limit_commander],
+    const child = spawn('node', ['signal-pro.js',player_commander,engine_commander,token_commander,limit_commander],
         { stdio: [null, null, null, 'ipc'] });
     process.stdin.pipe(child.stdin);
-
     child.stdout.on('data', (data) => {
         console.log('child pid:'+ child.pid+ ' child stdout:'+ data);
+        let og =  {
+            ProjectID:  {type: String},
+            pid:  {type: Number},
+            state: {type: String}
+        };
+        og.ProjectID = ProjectID;
+        og.pid =child.pid;
+        og.state = data.toString();
         let bfound = false;
         for (let i = 0; i < pixel_child_pid.length; i++) {
-            if (pixel_child_pid[i] == child.pid) {
+            if (pixel_child_pid[i].pid == og.pid && pixel_child_pid[i].ProjectID == og.ProjectID) {
+                pixel_child_pid[i].state = og.state;
                 bfound = true;
             }
         }
         if (!bfound)
-            pixel_child_pid.push(child.pid);
-        //ws.send('信令服务创建成功');
+            pixel_child_pid.push(og);
+        ws.send('信令服务创建成功');
     });
 
     child.stderr.on('data',(data) => {
         console.log(`child error: ${child.pid,data}`);
-        //ws.send('信令服务创建失败，原因端口占用');
+        ws.send('信令服务创建失败，原因端口占用');
     });
 
     child.on('exit', function (code) {
@@ -166,7 +180,7 @@ function StartUp(player,engine,token,limit,projectAddress,graphicsadapter,ForceR
     });
 
     const UEStratUpPort = ' -PixelStreamingURL=ws://127.0.0.1:'+ engine;
-    const StartUpUEFirstPart = projectAddress +UEStratUpPort+' -Unattended -RenderOffScreen -ForceRes -'
+    const StartUpUEFirstPart = projectAddress +UEStratUpPort+' -Unattended -RenderOffScreen -windowed -ForceRes -'
     const StartUpUELastPart = querystring.stringify({
         ResX,
         ResY,
@@ -184,7 +198,13 @@ function StartUp(player,engine,token,limit,projectAddress,graphicsadapter,ForceR
 
 
     setInterval(function(){
-        console.log('当前子存活子进程projectID:'+ProjectID+' 当前子存活子进程pid:' + pixel_child_pid);
+        //for (let i = 0; i < pixel_child_pid.length; i++) {
+            //const json_data = JSON.stringify(pixel_child_pid[i]);
+            //console.log(`当前子存活子进程: ${(json_data)}`);
+        //}
+
+        //console.dir(`当前子存活子进程: ${(data)}`);
+        console.log('%j', pixel_child_pid);
     }, 5000);
 
 }

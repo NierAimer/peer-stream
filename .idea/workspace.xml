@@ -15,7 +15,6 @@
     <list default="true" id="15b93484-0236-4280-864d-0f1ad405326a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/PixelWebsocket.js" beforeDir="false" afterPath="$PROJECT_DIR$/PixelWebsocket.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/signal.js" beforeDir="false" afterPath="$PROJECT_DIR$/signal.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -86,6 +85,8 @@
       <workItem from="1660718994718" duration="467000" />
       <workItem from="1660719929165" duration="6215000" />
       <workItem from="1660785837129" duration="2761000" />
+      <workItem from="1660808037576" duration="3294000" />
+      <workItem from="1660889656962" duration="8958000" />
     </task>
     <servers />
   </component>
@@ -105,5 +106,17 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/jsLanguageServicesImpl/external/lib.es5.d.ts</url>
+          <line>475</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

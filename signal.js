@@ -19,7 +19,7 @@ const args = process.argv.slice(2).reduce((pairs, pair) => {
 global.ENGINE = new WebSocket.Server({ port: args.engine || 8888 });
 ENGINE.ws = {}; // Unreal Engine's WebSocket
 
-console.log("signaling for engine:", ENGINE.address().port);
+//console.log("signaling for engine:", ENGINE.address().port);
 
 ENGINE.on("connection", (ws, req) => {
   // only one UE5
@@ -30,20 +30,20 @@ ENGINE.on("connection", (ws, req) => {
   ws.req = req;
   ENGINE.ws = ws;
 
-  console.log("✅ Engine connected:", req.socket.remoteAddress, req.socket.remotePort);
-
+  //console.log("✅ Engine connected:", req.socket.remoteAddress, req.socket.remotePort);
+  process.stdout.write(`Engine Connected`);
   ws.on("message", (msg) => {
     try {
       msg = JSON.parse(msg);
     } catch (err) {
-      console.error("❌【JSON error】 Engine:", msg);
+      //console.error("❌【JSON error】 Engine:", msg);
       return;
     }
 
     // Convert incoming playerId to a string if it is an integer, if needed. (We support receiving it as an int or string).
     const playerId = String(msg.playerId || "");
     delete msg.playerId; // no need to send it to the player
-    console.log("Engine:", msg.type, playerId);
+    //console.log("Engine:", msg.type, playerId);
 
     if (msg.type === "ping") {
       ws.send(JSON.stringify({ type: "pong", time: msg.time }));
@@ -52,7 +52,7 @@ ENGINE.on("connection", (ws, req) => {
 
     const p = [...PLAYER.clients].find((x) => x.playerId === playerId);
     if (!p) {
-      console.error("❌ player not found:", playerId);
+      //console.error("❌ player not found:", playerId);
       return;
     }
 
@@ -62,13 +62,14 @@ ENGINE.on("connection", (ws, req) => {
       p.send(msg.reason);
       p.close(1011, "Infinity");
     } else {
-      console.error("❌ invalid Engine message type:", msg.type);
+      //console.error("❌ invalid Engine message type:", msg.type);
     }
   });
 
   ws.on("close", (code, reason) => {
     // reason is buffer ??
-    console.log("❌ Engine closed:", String(reason));
+    //console.log("❌ Engine closed:", String(reason));
+    process.stdout.write(`Engine Closed`);
     for (const client of PLAYER.clients) {
       client.send(`❌ Engine stopped`);
     }
@@ -76,7 +77,8 @@ ENGINE.on("connection", (ws, req) => {
   });
 
   ws.on("error", (error) => {
-    console.error("❌ Engine connection error:", error);
+    //console.error("❌ Engine connection error:", error);
+    process.stdout.write(`Engine Error`);
     // A control frame must have a payload length of 125 bytes or less
     // ws.close(1011, error.message.slice(0, 100));
   });
@@ -113,14 +115,15 @@ global.PLAYER = new WebSocket.Server({
   // port: args.player || 88,
   clientTracking: true,
 });
-console.log("signaling for player:", PLAYER.address().port);
+//console.log("signaling for player:", PLAYER.address().port);
+process.stdout.write(`Signal Start Up`);
 let nextPlayerId = 100;
 // every player
 PLAYER.on("connection", async (ws, req) => {
   const playerId = String(++nextPlayerId);
 
-  console.log("✅ player", playerId, "connected:", req.socket.remoteAddress, req.socket.remotePort);
-
+  //console.log("✅ player", playerId, "connected:", req.socket.remoteAddress, req.socket.remotePort);
+  process.stdout.write('Player Connected');
   ws.req = req;
   ws.playerId = playerId;
 
@@ -133,12 +136,12 @@ PLAYER.on("connection", async (ws, req) => {
     try {
       msg = JSON.parse(msg);
     } catch (err) {
-      console.info("player", playerId, String(msg));
+      //console.info("player", playerId, String(msg));
       ws.send("hello " + msg.slice(0, 100));
       return;
     }
 
-    console.log("player", playerId, msg.type);
+    //console.log("player", playerId, msg.type);
 
     msg.playerId = playerId;
     if (["answer", "iceCandidate"].includes(msg.type)) {
@@ -157,13 +160,14 @@ PLAYER.on("connection", async (ws, req) => {
   });
 
   ws.on("close", (code, reason) => {
-    console.log("❌ player", playerId, "closed:", String(reason));
+    //console.log("❌ player", playerId, "closed:", String(reason));
+    process.stdout.write('Player Closed');
     if (ENGINE.ws.readyState === WebSocket.OPEN)
       ENGINE.ws.send(JSON.stringify({ type: "playerDisconnected", playerId }));
   });
 
   ws.on("error", (error) => {
-    console.error("❌ player", playerId, "connection error:", error);
+    //console.error("❌ player", playerId, "connection error:", error);
   });
 
   if (ENGINE.ws.readyState === WebSocket.OPEN)
